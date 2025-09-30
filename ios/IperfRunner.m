@@ -7,13 +7,16 @@
 
 #import "IperfRunner.h"
 #import "iperf_api.h"      // from ios/iperf3/src
+#import "iperf.h"          // for struct iperf_test definition
 #import <stdatomic.h>
+#import <unistd.h>
 
 @implementation IperfRunner {
   atomic_bool _isRunning;
   NSThread *_thread;
   IperfLogBlock _onLog;
-  struct iperf_test *_test;
+  struct iperf_test *_test;  // Only access from worker thread
+  atomic_int _listenerSocket;  // Store listener socket for safe access from main thread
 }
 
 // Static reference to the current runner for the C callback
@@ -51,6 +54,7 @@ static void iperf_json_output_callback(struct iperf_test *test, char *json_strin
   _onLog = [onLog copy];
   s_currentRunner = self;
   atomic_store(&_isRunning, true);
+  atomic_store(&_listenerSocket, -1);
 
   _thread = [[NSThread alloc] initWithBlock:^{
     struct iperf_test *t = iperf_new_test();
@@ -64,6 +68,11 @@ static void iperf_json_output_callback(struct iperf_test *test, char *json_strin
     iperf_defaults(t);
     iperf_set_test_role(t, 's');
     iperf_set_test_server_port(t, port);
+    
+    // Set a short idle timeout so the server checks for stop more frequently
+    // This is in seconds - set to 1 second so we can stop quickly
+    t->settings->idle_timeout = 1;
+    
     if (json) {
       iperf_set_test_json_output(t, 1);
       iperf_set_test_json_stream(t, 1);  // Enable JSON streaming for real-time updates
@@ -74,13 +83,43 @@ static void iperf_json_output_callback(struct iperf_test *test, char *json_strin
 
     // Run server loop - handle multiple clients
     while (atomic_load(&self->_isRunning)) {
+      // Store listener socket for safe access from main thread
+      if (t->listener > -1) {
+        atomic_store(&self->_listenerSocket, t->listener);
+      }
+      
+      // Check if we should stop before calling iperf_run_server
+      if (!atomic_load(&self->_isRunning)) {
+        t->done = 1;
+        iperf_set_test_state(t, IPERF_DONE);  // Tell iperf to stop
+        if (t->listener > -1) {
+          close(t->listener);
+          t->listener = -1;
+        }
+        break;
+      }
+      
       int rc = iperf_run_server(t);
       
+      // Store listener socket again after iperf_run_server() in case it was just created
+      if (t->listener > -1) {
+        atomic_store(&self->_listenerSocket, t->listener);
+      }
+      
       // Check if we should stop
-      if (!atomic_load(&self->_isRunning)) break;
+      if (!atomic_load(&self->_isRunning)) {
+        t->done = 1;
+        iperf_set_test_state(t, IPERF_DONE);
+        if (t->listener > -1) {
+          close(t->listener);
+          t->listener = -1;
+        }
+        break;
+      }
       
       if (rc < 0) {
-        if (self->_onLog) {
+        // Only log errors if we didn't intentionally stop the server
+        if (atomic_load(&self->_isRunning) && self->_onLog) {
           const char *err = iperf_strerror(i_errno);
           self->_onLog([NSString stringWithUTF8String: err ?: "iperf_run_server error"]);
         }
@@ -95,29 +134,41 @@ static void iperf_json_output_callback(struct iperf_test *test, char *json_strin
       }
     }
     
+    // Cleanup
     iperf_free_test(t);
     self->_test = NULL;
+    atomic_store(&self->_listenerSocket, -1);
     atomic_store(&self->_isRunning, false);
+    
+    // Clear references on the main thread
+    dispatch_async(dispatch_get_main_queue(), ^{
+      self->_thread = nil;
+      self->_onLog = nil;
+      s_currentRunner = nil;
+    });
   }];
   [_thread start];
 }
 
 - (void)stop {
     if (!self.isRunning) return;
+  
+  // Signal the worker thread to stop
   atomic_store(&_isRunning, false);
   
-  // Wait for thread to finish with a timeout
-  if (_thread && ![_thread isFinished]) {
-    // Give it a moment to clean up (max 2 seconds)
-    for (int i = 0; i < 20 && ![_thread isFinished]; i++) {
-      [NSThread sleepForTimeInterval:0.1];
-    }
+  // Shutdown the listener socket to interrupt the blocking select() call
+  // shutdown() is more reliable than close() for interrupting blocking I/O
+  // This is thread-safe because we're using the atomic copy of the socket descriptor
+  int listener = atomic_load(&_listenerSocket);
+  if (listener > -1) {
+    // Shutdown both reading and writing to force select() to return
+    shutdown(listener, SHUT_RDWR);
+    close(listener);
+    atomic_store(&_listenerSocket, -1);
   }
   
-  _thread = nil; 
-  _onLog = nil;
-  _test = NULL;
-  s_currentRunner = nil;
+  // Let the thread clean itself up asynchronously (don't block the UI)
+  // The thread will exit when it detects _isRunning is false
 }
 
 - (BOOL)isRunning { return atomic_load(&_isRunning); }
