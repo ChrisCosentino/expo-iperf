@@ -1,73 +1,34 @@
-import { useEvent } from 'expo';
-import ExpoIperf, { ExpoIperfView } from 'expo-iperf';
-import { Button, SafeAreaView, ScrollView, Text, View } from 'react-native';
+import * as Iperf from "expo-iperf";
+import { useEffect } from "react";
+import { Button, Text, View } from "react-native";
 
 export default function App() {
-  const onChangePayload = useEvent(ExpoIperf, 'onChange');
+  useEffect(() => {
+    const sub1 = Iperf.addLogListener((l) => {
+      console.log({ l });
+      // setLines((prev) => [...prev, l].slice(-400))
+    });
+    const sub2 = Iperf.addStateListener((s) => {
+      console.log({ s });
+      // setRunning(s === "started")
+    });
+    Iperf.isRunning().then((r) => console.log({ r }));
+    // Iperf.isRunning().then((r) => {
+    //   console.log({ r });
+    // });
+    return () => {
+      sub1.remove();
+      sub2.remove();
+    };
+  }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.container}>
-        <Text style={styles.header}>Module API Example</Text>
-        <Group name="Constants">
-          <Text>{ExpoIperf.PI}</Text>
-        </Group>
-        <Group name="Functions">
-          <Text>{ExpoIperf.hello()}</Text>
-        </Group>
-        <Group name="Async functions">
-          <Button
-            title="Set value"
-            onPress={async () => {
-              await ExpoIperf.setValueAsync('Hello from JS!');
-            }}
-          />
-        </Group>
-        <Group name="Events">
-          <Text>{onChangePayload?.value}</Text>
-        </Group>
-        <Group name="Views">
-          <ExpoIperfView
-            url="https://www.example.com"
-            onLoad={({ nativeEvent: { url } }) => console.log(`Loaded: ${url}`)}
-            style={styles.view}
-          />
-        </Group>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+      <Text>Theme: {Iperf.getTheme()}</Text>
+      <Button title="Set Theme" onPress={() => Iperf.setTheme("dark")} />
 
-function Group(props: { name: string; children: React.ReactNode }) {
-  return (
-    <View style={styles.group}>
-      <Text style={styles.groupHeader}>{props.name}</Text>
-      {props.children}
+      <Button title="Start Server" onPress={() => Iperf.start({})} />
+      <Button title="Stop Server" onPress={() => Iperf.stop()} />
     </View>
   );
 }
-
-const styles = {
-  header: {
-    fontSize: 30,
-    margin: 20,
-  },
-  groupHeader: {
-    fontSize: 20,
-    marginBottom: 20,
-  },
-  group: {
-    margin: 20,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 20,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#eee',
-  },
-  view: {
-    flex: 1,
-    height: 200,
-  },
-};

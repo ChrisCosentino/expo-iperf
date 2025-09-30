@@ -9,6 +9,39 @@ public class ExpoIperfModule: Module {
     // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
     // The module will be accessible from `requireNativeModule('ExpoIperf')` in JavaScript.
     Name("ExpoIperf")
+      
+      Function("getTheme") { () -> String in
+          UserDefaults.standard.string(forKey: "theme") ?? "system"
+      }
+      
+      Function("setTheme") { (theme: String) -> Void in
+          UserDefaults.standard.set(theme, forKey: "theme")
+      }
+      
+      Function("start") { (options: [String: Any]) in
+          print("Starting Server")
+           let port = options["port"] as? Int ?? 5201
+           let json = options["json"] as? Bool ?? true
+           let udp  = (options["protocol"] as? String) == "udp"
+          
+          
+
+          IperfRunner.shared().start(onPort: Int32(port), json: json, udp: udp) { line in
+              print(line)
+             self.sendEvent("log", ["line": line])
+           }
+           self.sendEvent("state", ["value": "started"])
+         }
+      
+      Function("stop") {
+          IperfRunner.shared().stop()
+          self.sendEvent("state", ["value": "stopped"])
+      }
+      
+      Function("isRunning") {
+            return IperfRunner.shared().isRunning
+      }
+
 
     // Defines constant property on the module.
     Constant("PI") {
@@ -32,17 +65,5 @@ public class ExpoIperfModule: Module {
       ])
     }
 
-    // Enables the module to be used as a native view. Definition components that are accepted as part of the
-    // view definition: Prop, Events.
-    View(ExpoIperfView.self) {
-      // Defines a setter for the `url` prop.
-      Prop("url") { (view: ExpoIperfView, url: URL) in
-        if view.webView.url != url {
-          view.webView.load(URLRequest(url: url))
-        }
-      }
-
-      Events("onLoad")
-    }
   }
 }

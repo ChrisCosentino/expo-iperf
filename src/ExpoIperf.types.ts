@@ -1,19 +1,12 @@
-import type { StyleProp, ViewStyle } from 'react-native';
+export type ExpoIperfModuleEvents = {};
 
-export type OnLoadEventPayload = {
-  url: string;
+export type StartOptions = {
+  port?: number; // default 5201
+  json?: boolean; // default true
+  protocol?: "tcp" | "udp"; // default 'tcp'
 };
 
-export type ExpoIperfModuleEvents = {
-  onChange: (params: ChangeEventPayload) => void;
-};
+export type StateValue = "started" | "stopped" | "error";
 
-export type ChangeEventPayload = {
-  value: string;
-};
-
-export type ExpoIperfViewProps = {
-  url: string;
-  onLoad: (event: { nativeEvent: OnLoadEventPayload }) => void;
-  style?: StyleProp<ViewStyle>;
-};
+export type LogEvent = { line: string };
+export type StateEvent = { value: StateValue };
