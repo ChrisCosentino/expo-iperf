@@ -16,6 +16,30 @@
   struct iperf_test *_test;
 }
 
+// Static reference to the current runner for the C callback
+static IperfRunner *s_currentRunner = nil;
+
+// C callback for iperf JSON output
+static void iperf_json_output_callback(struct iperf_test *test, char *json_string) {
+  if (!json_string) return;
+  
+  IperfRunner *runner = s_currentRunner;
+  if (runner) {
+    NSString *output = [NSString stringWithUTF8String:json_string];
+    // Call the log block on the main thread for thread safety
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [runner invokeLogCallback:output];
+    });
+  }
+}
+
+// Helper method to invoke the log callback
+- (void)invokeLogCallback:(NSString *)output {
+  if (_onLog) {
+    _onLog(output);
+  }
+}
+
 + (instancetype)shared {
   static IperfRunner *s; static dispatch_once_t once;
   dispatch_once(&once, ^{ s = [IperfRunner new]; });
@@ -25,6 +49,7 @@
 - (void)startOnPort:(int)port json:(BOOL)json udp:(BOOL)udp onLog:(IperfLogBlock)onLog {
     if (self.isRunning) return;
   _onLog = [onLog copy];
+  s_currentRunner = self;
   atomic_store(&_isRunning, true);
 
   _thread = [[NSThread alloc] initWithBlock:^{
@@ -39,7 +64,12 @@
     iperf_defaults(t);
     iperf_set_test_role(t, 's');
     iperf_set_test_server_port(t, port);
-    if (json) iperf_set_test_json_output(t, 1);
+    if (json) {
+      iperf_set_test_json_output(t, 1);
+      iperf_set_test_json_stream(t, 1);  // Enable JSON streaming for real-time updates
+      // Set the callback to receive JSON output in real-time
+      iperf_set_test_json_callback(t, iperf_json_output_callback);
+    }
 //    if (udp)  iperf_set_test_protocol(t, Pudp);
 
     // Run server loop - handle multiple clients
@@ -87,6 +117,7 @@
   _thread = nil; 
   _onLog = nil;
   _test = NULL;
+  s_currentRunner = nil;
 }
 
 - (BOOL)isRunning { return atomic_load(&_isRunning); }

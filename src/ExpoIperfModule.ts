@@ -7,7 +7,7 @@ declare class ExpoIperfModule extends NativeModule<ExpoIperfModuleEvents> {
   setTheme: (theme: string) => void;
   start: (options: StartOptions) => void;
   stop: () => void;
-  isRunning(): Promise<boolean>;
+  isRunning(): boolean;
 }
 
 // This call loads the native module object from the JSI.
