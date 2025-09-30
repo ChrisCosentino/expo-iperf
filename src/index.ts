@@ -1,9 +1,3 @@
-// import { EventEmitter } from "expo";
-// import { StartOptions, StateValue } from "./ExpoIperf.types";
-// import ExpoIperfModule from "./ExpoIperfModule";
-// // import { EventSubscription } from "expo-modules-core";
-// import type { Subscription } from "expo-modules-core";
-
 import { EventEmitter } from "expo-modules-core";
 import type { Subscription } from "expo-modules-core";
 import ExpoIperfModule from "./ExpoIperfModule";

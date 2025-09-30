@@ -21,7 +21,8 @@ typedef void (^IperfLogBlock)(NSString *line);
 + (instancetype)shared;
 - (void)startOnPort:(int)port json:(BOOL)json udp:(BOOL)udp onLog:(IperfLogBlock)onLog;
 - (void)stop;
-@property(nonatomic, readonly, getter=isRunning) BOOL running;
+//@property(nonatomic, readonly, getter=isRunning) BOOL running;
+@property(nonatomic, readonly) BOOL isRunning;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -39,7 +39,7 @@ public class ExpoIperfModule: Module {
       }
       
       Function("isRunning") {
-            return IperfRunner.shared().isRunning
+          return IperfRunner.shared().isRunning
       }
 
 
@@ -49,7 +49,7 @@ public class ExpoIperfModule: Module {
     }
 
     // Defines event names that the module can send to JavaScript.
-    Events("onChange")
+    Events("log", "state")
 
     // Defines a JavaScript synchronous function that runs the native code on the JavaScript thread.
     Function("hello") {
