@@ -1,50 +1,109 @@
+//package expo.modules.iperf
+//
+//import expo.modules.kotlin.modules.Module
+//import expo.modules.kotlin.modules.ModuleDefinition
+//
+//class ExpoIperfModule : Module() {
+//  private var isRunning = false
+//
+//  override fun definition() = ModuleDefinition {
+//    Name("ExpoIperf")
+//
+//    // Defines event names that the module can send to JavaScript.
+//    Events("log", "state")
+//
+//    // Get theme (placeholder for now)
+//    Function("getTheme") {
+//      "system"
+//    }
+//
+//    // Set theme (placeholder for now)
+//    Function("setTheme") { theme: String ->
+//      // Implementation for setting theme
+//    }
+//
+//    // Start iperf server
+//    Function("start") { options: Map<String, Any?> ->
+//      val port = options["port"] as? Int ?: 5201
+//      val json = options["json"] as? Boolean ?: true
+//      val protocol = options["protocol"] as? String ?: "tcp"
+//
+//      isRunning = true
+//
+//      // Send state event
+//      sendEvent("state", mapOf("value" to "started"))
+//
+//      // TODO: Implement actual iperf functionality here
+//      // For now, just log the options
+//      sendEvent("log", mapOf("line" to "Starting iperf on port $port with protocol $protocol"))
+//    }
+//
+//    // Stop iperf server
+//    Function("stop") {
+//      isRunning = false
+//      sendEvent("state", mapOf("value" to "stopped"))
+//      sendEvent("log", mapOf("line" to "Stopping iperf"))
+//    }
+//
+//    // Check if running
+//    Function("isRunning") {
+//      isRunning
+//    }
+//  }
+//}
+
 package expo.modules.iperf
 
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
-import java.net.URL
 
 class ExpoIperfModule : Module() {
-  // Each module class must implement the definition function. The definition consists of components
-  // that describes the module's functionality and behavior.
-  // See https://docs.expo.dev/modules/module-api for more details about available components.
+  private val iperfRunner = IperfRunner.getInstance()
+
   override fun definition() = ModuleDefinition {
-    // Sets the name of the module that JavaScript code will use to refer to the module. Takes a string as an argument.
-    // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
-    // The module will be accessible from `requireNativeModule('ExpoIperf')` in JavaScript.
     Name("ExpoIperf")
 
-    // Defines constant property on the module.
-    Constant("PI") {
-      Math.PI
-    }
-
     // Defines event names that the module can send to JavaScript.
-    Events("onChange")
+    Events("log", "state")
 
-    // Defines a JavaScript synchronous function that runs the native code on the JavaScript thread.
-    Function("hello") {
-      "Hello world! 👋"
+    // Get theme (placeholder for now)
+    Function("getTheme") {
+      "system"
     }
 
-    // Defines a JavaScript function that always returns a Promise and whose native code
-    // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("setValueAsync") { value: String ->
-      // Send an event to JavaScript.
-      sendEvent("onChange", mapOf(
-        "value" to value
-      ))
+    // Set theme (placeholder for now)
+    Function("setTheme") { theme: String ->
+      // Implementation for setting theme
     }
 
-    // Enables the module to be used as a native view. Definition components that are accepted as part of
-    // the view definition: Prop, Events.
-    View(ExpoIperfView::class) {
-      // Defines a setter for the `url` prop.
-      Prop("url") { view: ExpoIperfView, url: URL ->
-        view.webView.loadUrl(url.toString())
-      }
-      // Defines an event that the view can send to JavaScript.
-      Events("onLoad")
+    // Start iperf server
+    Function("start") { options: Map<String, Any?> ->
+      val port = options["port"] as? Int ?: 5201
+      val json = options["json"] as? Boolean ?: true
+      val protocol = options["protocol"] as? String ?: "tcp"
+      val udp = protocol == "udp"
+
+      // Send state event
+      sendEvent("state", mapOf("value" to "started"))
+
+      // Start iperf with callback
+      iperfRunner.start(port, json, udp, object : IperfRunner.LogCallback {
+        override fun onLog(line: String) {
+          sendEvent("log", mapOf("line" to line))
+        }
+      })
+    }
+
+    // Stop iperf server
+    Function("stop") {
+      iperfRunner.stop()
+      sendEvent("state", mapOf("value" to "stopped"))
+      sendEvent("log", mapOf("line" to "Stopping iperf"))
+    }
+
+    // Check if running
+    Function("isRunning") {
+      iperfRunner.isRunning()
     }
   }
 }
