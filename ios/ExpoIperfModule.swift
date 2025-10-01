@@ -43,11 +43,6 @@ public class ExpoIperfModule: Module {
       }
 
 
-    // Defines constant property on the module.
-    Constant("PI") {
-      Double.pi
-    }
-
     // Defines event names that the module can send to JavaScript.
     Events("log", "state")
 
