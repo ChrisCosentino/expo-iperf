@@ -84,6 +84,42 @@ void iperf_json_output_callback(struct iperf_test *test, char *json_string) {
     }
 }
 
+// Helper to send a log line back to JS when we are not in iperf's JSON callback
+static void send_log_line(const char* text) {
+    if (!text || !g_jvm) return;
+
+    std::lock_guard<std::mutex> lock(g_callbackMutex);
+    if (!g_callbackObject || !g_isRunning) return;
+
+    JNIEnv *jenv;
+    bool needDetach = false;
+
+    int getEnvStat = g_jvm->GetEnv((void**)&jenv, JNI_VERSION_1_6);
+    if (getEnvStat == JNI_EDETACHED) {
+        if (g_jvm->AttachCurrentThread(&jenv, nullptr) != 0) {
+            return;
+        }
+        needDetach = true;
+    }
+
+    jclass cls = jenv->GetObjectClass(g_callbackObject);
+    if (cls != nullptr) {
+        jmethodID mid = jenv->GetMethodID(cls, "onLog", "(Ljava/lang/String;)V");
+        if (mid != nullptr) {
+            jstring jstr = jenv->NewStringUTF(text);
+            if (jstr != nullptr) {
+                jenv->CallVoidMethod(g_callbackObject, mid, jstr);
+                jenv->DeleteLocalRef(jstr);
+            }
+        }
+        jenv->DeleteLocalRef(cls);
+    }
+
+    if (needDetach) {
+        g_jvm->DetachCurrentThread();
+    }
+}
+
 // Thread function
 void* iperf_thread_func(void* arg) {
     ThreadData *data = (ThreadData*)arg;
@@ -103,6 +139,10 @@ void* iperf_thread_func(void* arg) {
     iperf_set_test_role(t, 's');
     iperf_set_test_server_port(t, data->port);
 
+    // Force IPv4 and bind to all interfaces to ensure reachability on LAN
+    t->settings->domain = AF_INET;
+    iperf_set_test_bind_address(t, "0.0.0.0");
+
     // Set idle timeout for responsive stopping
     t->settings->idle_timeout = 1;
 
@@ -121,8 +161,11 @@ void* iperf_thread_func(void* arg) {
             break;
         }
 
-        // If there was an error, stop
+        // If there was an error, report and stop
         if (rc < 0) {
+            const char* err = iperf_strerror(i_errno);
+            std::string msg = std::string("{\"event\":\"error\",\"message\":\"") + (err ? err : "unknown") + "\"}";
+            send_log_line(msg.c_str());
             break;
         }
 
