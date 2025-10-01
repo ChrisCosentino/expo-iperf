@@ -38,11 +38,11 @@
 #include <sys/select.h>
 #include <limits.h>
 
-#include "../../../../../../ios/iperf3/src/iperf.h"
+#include "iperf.h"
 #include "iperf_api.h"
-#include "../../../../../../ios/iperf3/src/iperf_tcp.h"
-#include "../../../../../../ios/iperf3/src/iperf_util.h"
-#include "../../../../../../ios/iperf3/src/net.h"
+#include "iperf_tcp.h"
+#include "iperf_util.h"
+#include "net.h"
 #include "cjson.h"
 
 #if defined(HAVE_FLOWLABEL)

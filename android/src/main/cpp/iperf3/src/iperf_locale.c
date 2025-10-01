@@ -79,7 +79,7 @@
  * ------------------------------------------------------------------- */
 #include "iperf_config.h"
 
-#include "../../../../../../ios/iperf3/src/version.h"
+#include "version.h"
 
 #include <inttypes.h>
 

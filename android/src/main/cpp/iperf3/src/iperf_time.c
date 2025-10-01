@@ -29,7 +29,7 @@
 #include <stddef.h>
 
 #include "iperf_config.h"
-#include "../../../../../../ios/iperf3/src/iperf_time.h"
+#include "iperf_time.h"
 
 #ifdef HAVE_CLOCK_GETTIME
 

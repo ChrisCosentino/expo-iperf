@@ -74,8 +74,8 @@
 
 #include "iperf.h"
 #include "iperf_util.h"
-#include "../../../../../../ios/iperf3/src/net.h"
-#include "../../../../../../ios/iperf3/src/timer.h"
+#include "net.h"
+#include "timer.h"
 
 static int nread_read_timeout = 10;
 static int nread_overall_timeout = 30;

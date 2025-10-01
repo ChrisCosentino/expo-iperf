@@ -2,6 +2,9 @@ import type { EventSubscription } from "expo-modules-core";
 import ExpoIperfModule from "./ExpoIperfModule";
 import type { StartOptions, StateValue } from "./ExpoIperf.types";
 
+// Export types for users
+export type { StartOptions, StateValue } from "./ExpoIperf.types";
+
 export function getTheme(): string {
   return ExpoIperfModule.getTheme();
 }

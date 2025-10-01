@@ -50,11 +50,11 @@
 #include <sys/cpuset.h>
 #endif /* HAVE_CPUSET_SETAFFINITY */
 
-#include "../../../../../../ios/iperf3/src/timer.h"
-#include "../../../../../../ios/iperf3/src/queue.h"
+#include "timer.h"
+#include "queue.h"
 #include "cjson.h"
 #include "iperf_time.h"
-#include "../../../../../../ios/iperf3/src/portable_endian.h"
+#include "portable_endian.h"
 
 #if defined(HAVE_SSL)
 #include <openssl/bio.h>

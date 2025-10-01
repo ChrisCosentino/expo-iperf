@@ -39,12 +39,12 @@
 #include <sys/time.h>
 #include <sys/select.h>
 
-#include "../../../../../../ios/iperf3/src/iperf.h"
+#include "iperf.h"
 #include "iperf_api.h"
-#include "../../../../../../ios/iperf3/src/iperf_util.h"
-#include "../../../../../../ios/iperf3/src/iperf_udp.h"
-#include "../../../../../../ios/iperf3/src/timer.h"
-#include "../../../../../../ios/iperf3/src/net.h"
+#include "iperf_util.h"
+#include "iperf_udp.h"
+#include "timer.h"
+#include "net.h"
 #include "cjson.h"
 
 /* iperf_udp_recv

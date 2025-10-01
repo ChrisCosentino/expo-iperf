@@ -30,7 +30,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include "../../../../../../ios/iperf3/src/iperf.h"
+#include "iperf.h"
 #include "iperf_api.h"
 
 int gerror;

@@ -29,7 +29,7 @@
 #endif
 #define __USE_GNU
 
-#include "../../../../../../ios/iperf3/src/iperf_config.h"
+#include "iperf_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,21 +69,21 @@
 #include <Windows.h>
 #endif /* HAVE_SETPROCESSAFFINITYMASK */
 
-#include "../../../../../../ios/iperf3/src/net.h"
-#include "../../../../../../ios/iperf3/src/iperf.h"
-#include "../../../../../../ios/iperf3/src/iperf_api.h"
-#include "../../../../../../ios/iperf3/src/iperf_udp.h"
-#include "../../../../../../ios/iperf3/src/iperf_tcp.h"
+#include "net.h"
+#include "iperf.h"
+#include "iperf_api.h"
+#include "iperf_udp.h"
+#include "iperf_tcp.h"
 #if defined(HAVE_SCTP_H)
 #include "iperf_sctp.h"
 #endif /* HAVE_SCTP_H */
-#include "../../../../../../ios/iperf3/src/timer.h"
+#include "timer.h"
 
 #include "cjson.h"
-#include "../../../../../../ios/iperf3/src/units.h"
-#include "../../../../../../ios/iperf3/src/iperf_util.h"
-#include "../../../../../../ios/iperf3/src/iperf_locale.h"
-#include "../../../../../../ios/iperf3/src/version.h"
+#include "units.h"
+#include "iperf_util.h"
+#include "iperf_locale.h"
+#include "version.h"
 #if defined(HAVE_SSL)
 #include <openssl/bio.h>
 #include <openssl/err.h>

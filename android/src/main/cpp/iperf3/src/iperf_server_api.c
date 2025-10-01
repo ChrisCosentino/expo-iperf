@@ -47,16 +47,16 @@
 #include <setjmp.h>
 #include <signal.h>
 
-#include "../../../../../../ios/iperf3/src/iperf.h"
+#include "iperf.h"
 #include "iperf_api.h"
-#include "../../../../../../ios/iperf3/src/iperf_udp.h"
-#include "../../../../../../ios/iperf3/src/iperf_tcp.h"
-#include "../../../../../../ios/iperf3/src/iperf_util.h"
-#include "../../../../../../ios/iperf3/src/timer.h"
-#include "../../../../../../ios/iperf3/src/iperf_time.h"
-#include "../../../../../../ios/iperf3/src/net.h"
-#include "../../../../../../ios/iperf3/src/units.h"
-#include "../../../../../../ios/iperf3/src/iperf_util.h"
+#include "iperf_udp.h"
+#include "iperf_tcp.h"
+#include "iperf_util.h"
+#include "timer.h"
+#include "iperf_time.h"
+#include "net.h"
+#include "units.h"
+#include "iperf_util.h"
 #include "iperf_locale.h"
 
 #if defined(HAVE_TCP_CONGESTION)

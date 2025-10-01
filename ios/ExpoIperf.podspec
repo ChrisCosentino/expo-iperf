@@ -99,8 +99,8 @@ Pod::Spec.new do |s|
   s.platforms        = { :ios => '15.1' }
   s.swift_version    = '5.9'
 
-  # IMPORTANT: use local path for a development pod (files in this ios/ folder)
-  s.source           = { :path => '.' }
+  # For npm-distributed packages, source should point to the package
+  s.source           = { :git => 'https://github.com/ChrisCosentino/expo-iperf.git', :tag => "v#{s.version}" }
 
   # Expo runtime
   s.dependency 'ExpoModulesCore'

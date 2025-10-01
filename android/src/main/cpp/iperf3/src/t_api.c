@@ -34,9 +34,9 @@
 #include "iperf.h"
 #include "iperf_api.h"
 
-#include "../../../../../../ios/iperf3/src/version.h"
+#include "version.h"
 
-#include "../../../../../../ios/iperf3/src/units.h"
+#include "units.h"
 
 int test_iperf_set_test_bind_port(struct iperf_test *test)
 {

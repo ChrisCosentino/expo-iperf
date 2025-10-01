@@ -38,13 +38,13 @@
 #include <arpa/inet.h>
 #include <signal.h>
 
-#include "../../../../../../ios/iperf3/src/iperf.h"
+#include "iperf.h"
 #include "iperf_api.h"
-#include "../../../../../../ios/iperf3/src/iperf_util.h"
-#include "../../../../../../ios/iperf3/src/iperf_locale.h"
-#include "../../../../../../ios/iperf3/src/iperf_time.h"
-#include "../../../../../../ios/iperf3/src/net.h"
-#include "../../../../../../ios/iperf3/src/timer.h"
+#include "iperf_util.h"
+#include "iperf_locale.h"
+#include "iperf_time.h"
+#include "net.h"
+#include "timer.h"
 
 #if defined(HAVE_TCP_CONGESTION)
 #if !defined(TCP_CA_NAME_MAX)

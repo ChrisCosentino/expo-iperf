@@ -25,7 +25,7 @@
  * for complete information.
  */
 
-#include "../../../../../../ios/iperf3/src/iperf_config.h"
+#include "iperf_config.h"
 
 #include <string.h>
 #include <time.h>

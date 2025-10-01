@@ -1,7 +1,7 @@
 {
   "name": "expo-iperf",
-  "version": "0.1.0",
-  "description": "React native running iperf",
+  "version": "0.1.1",
+  "description": "Run iperf3 network performance tests on React Native with native iOS and Android support",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
@@ -18,8 +18,13 @@
   "keywords": [
     "react-native",
     "expo",
-    "expo-iperf",
-    "ExpoIperf"
+    "iperf",
+    "iperf3",
+    "network",
+    "bandwidth",
+    "performance",
+    "testing",
+    "expo-module"
   ],
   "repository": "https://github.com/ChrisCosentino/expo-iperf",
   "bugs": {

@@ -44,8 +44,8 @@
 #include "iperf_api.h"
 #include "iperf_util.h"
 #include "iperf_locale.h"
-#include "../../../../../../ios/iperf3/src/net.h"
-#include "../../../../../../ios/iperf3/src/units.h"
+#include "net.h"
+#include "units.h"
 
 
 static int run(struct iperf_test *test);

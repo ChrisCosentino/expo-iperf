@@ -47,7 +47,7 @@
 #include <fcntl.h>
 
 #include "cjson.h"
-#include "../../../../../../ios/iperf3/src/iperf.h"
+#include "iperf.h"
 #include "iperf_api.h"
 
 /*

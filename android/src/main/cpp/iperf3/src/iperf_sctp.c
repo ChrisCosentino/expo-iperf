@@ -39,10 +39,10 @@
 #include <sys/select.h>
 #include <limits.h>
 
-#include "../../../../../../ios/iperf3/src/iperf.h"
+#include "iperf.h"
 #include "iperf_api.h"
-#include "../../../../../../ios/iperf3/src/iperf_sctp.h"
-#include "../../../../../../ios/iperf3/src/net.h"
+#include "iperf_sctp.h"
+#include "net.h"
 
 
 

@@ -37,7 +37,7 @@
 #pragma warning (disable : 4001)
 #endif
 
-#include "../../../../../../ios/iperf3/src/iperf_config.h"
+#include "iperf_config.h"
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
@@ -60,7 +60,7 @@
 #pragma GCC visibility pop
 #endif
 
-#include "../../../../../../ios/iperf3/src/cjson.h"
+#include "cjson.h"
 
 /* define our own boolean type */
 #ifdef true
