@@ -88,7 +88,7 @@
 #undef HAVE_SSL
 
 /* Define to 1 if you have the <stdatomic.h> header file. */
-#undef HAVE_STDATOMIC_H
+#define HAVE_STDATOMIC_H 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
