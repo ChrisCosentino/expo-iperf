@@ -50,7 +50,49 @@ static void iperf_json_output_callback(struct iperf_test *test, char *json_strin
 }
 
 - (void)startOnPort:(int)port json:(BOOL)json udp:(BOOL)udp onLog:(IperfLogBlock)onLog {
-    if (self.isRunning) return;
+  // If already running, force stop first to ensure clean state
+  if (self.isRunning) {
+    // Signal the worker thread to stop
+    atomic_store(&_isRunning, false);
+    
+    // Shutdown the listener socket to interrupt the blocking select() call
+    int listener = atomic_load(&_listenerSocket);
+    if (listener > -1) {
+      shutdown(listener, SHUT_RDWR);
+      close(listener);
+      atomic_store(&_listenerSocket, -1);
+    }
+    
+    // Wait for thread to finish - we need to do this synchronously to ensure cleanup
+    // We'll wait on a background thread to avoid blocking the UI
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    __block BOOL threadFinished = NO;
+    
+    // Check periodically if the thread has finished
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      int maxWaitSeconds = 3; // Maximum 3 seconds wait
+      for (int i = 0; i < maxWaitSeconds * 10; i++) {
+        if (!atomic_load(&self->_isRunning)) {
+          threadFinished = YES;
+          break;
+        }
+        usleep(100000); // 100ms
+      }
+      dispatch_semaphore_signal(semaphore);
+    });
+    
+    // Wait for cleanup to finish (will block, but on background thread)
+    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+    
+    // Give system a moment to fully release the socket
+    usleep(100000); // 100ms
+    
+    // Clear any lingering state
+    _thread = nil;
+    _onLog = nil;
+    s_currentRunner = nil;
+  }
+  
   _onLog = [onLog copy];
   s_currentRunner = self;
   atomic_store(&_isRunning, true);

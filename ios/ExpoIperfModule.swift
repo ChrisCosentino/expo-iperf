@@ -10,22 +10,12 @@ public class ExpoIperfModule: Module {
     // The module will be accessible from `requireNativeModule('ExpoIperf')` in JavaScript.
     Name("ExpoIperf")
       
-      Function("getTheme") { () -> String in
-          UserDefaults.standard.string(forKey: "theme") ?? "system"
-      }
-      
-      Function("setTheme") { (theme: String) -> Void in
-          UserDefaults.standard.set(theme, forKey: "theme")
-      }
-      
       Function("start") { (options: [String: Any]) in
           print("Starting Server")
            let port = options["port"] as? Int ?? 5201
            let json = options["json"] as? Bool ?? true
            let udp  = (options["protocol"] as? String) == "udp"
           
-          
-
           IperfRunner.shared().start(onPort: Int32(port), json: json, udp: udp) { line in
               print(line)
              self.sendEvent("log", ["line": line])
@@ -46,10 +36,6 @@ public class ExpoIperfModule: Module {
     // Defines event names that the module can send to JavaScript.
     Events("log", "state")
 
-    // Defines a JavaScript synchronous function that runs the native code on the JavaScript thread.
-    Function("hello") {
-      return "Hello world! 👋"
-    }
 
     // Defines a JavaScript function that always returns a Promise and whose native code
     // is by default dispatched on the different thread than the JavaScript runtime runs on.

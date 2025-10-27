@@ -202,7 +202,32 @@ Java_expo_modules_iperf_IperfRunner_nativeStart(
         jboolean udp,
         jobject callback) {
 
-    if (g_isRunning) return;
+    // If already running, force stop first to ensure clean state
+    if (g_isRunning) {
+        // Signal the thread to stop
+        g_isRunning = false;
+
+        // Signal iperf to terminate
+        if (g_test) {
+            g_test->done = 1;
+            iperf_set_test_state(g_test, IPERF_DONE);
+        }
+
+        // Wait for thread to finish
+        pthread_join(g_thread, nullptr);
+
+        // Lock and cleanup old callback
+        {
+            std::lock_guard<std::mutex> lock(g_callbackMutex);
+            if (g_callbackObject) {
+                jenv->DeleteGlobalRef(g_callbackObject);
+                g_callbackObject = nullptr;
+            }
+        }
+
+        // Give system a moment to release the socket
+        usleep(100000); // 100ms
+    }
 
     // Lock for callback setup
     std::lock_guard<std::mutex> lock(g_callbackMutex);

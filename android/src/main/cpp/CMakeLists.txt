@@ -48,3 +48,7 @@ target_link_libraries(iperf3
         atomic
         m
 )
+
+target_link_options(iperf3 PRIVATE
+        "-Wl,-z,common-page-size=16384"
+        "-Wl,-z,max-page-size=16384")
