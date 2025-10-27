@@ -75,7 +75,7 @@ static void iperf_json_output_callback(struct iperf_test * /*test*/, char *json_
     _test = NULL;
     _serverPort = 0;
     _stateLock = [NSLock new];
-    _oneOff = YES; // set NO if you want multi-client
+    _oneOff = NO; // set NO if you want multi-client, YES for 1 test
   }
   return self;
 }

@@ -362,7 +362,7 @@ Java_expo_modules_iperf_IperfRunner_nativeStart(
     data->port   = static_cast<int>(port);
     data->json   = json == JNI_TRUE;
     data->udp    = udp == JNI_TRUE;
-    data->oneOff = true; // recommended default
+    data->oneOff = false; // recommended default
 
     g_isRunning.store(true);
 
